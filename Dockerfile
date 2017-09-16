@@ -11,7 +11,6 @@ ENV LANG C.UTF-8
 # the other runtime dependencies for Python are installed later
 RUN apk add --no-cache ca-certificates
 
-ENV GPG_KEY 0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
 ENV PYTHON_VERSION 3.6.2
 
 RUN set -ex \
@@ -24,7 +23,8 @@ RUN set -ex \
 	&& wget -O python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz" \
 	&& wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc" \
 	&& export GNUPGHOME="$(mktemp -d)" \
-	&& gpg --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-keys "$GPG_KEY" \
+	&& ping -c 1 ha.pool.sks-keyservers.net > /dev/null 2>&1 \
+	&& gpg --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-keys "0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D" \
 	&& gpg --batch --verify python.tar.xz.asc python.tar.xz \
 	&& rm -rf "$GNUPGHOME" python.tar.xz.asc \
 	&& mkdir -p /usr/src/python \
@@ -118,6 +118,8 @@ RUN set -ex; \
 			\( -type f -a \( -name '*.pyc' -o -name '*.pyo' \) \) \
 		\) -exec rm -rf '{}' +; \
 	rm -f get-pip.py
+
+VOLUME /home/msanches/Git-Repos /root/Git-Repos
 
 CMD ["python3"]
 
